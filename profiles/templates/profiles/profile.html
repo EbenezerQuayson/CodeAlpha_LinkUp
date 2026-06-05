@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="app-container">
+    {% include "sidebar_left.html" %}
+    
+    <div class="feed-column">
+        <div class="profile-container">
+    <div class="card profile-header-card" style="padding: 0; overflow: hidden; margin-bottom: 24px;">
+        <div class="cover-photo" style="height: 160px;"></div>
+        <div class="profile-info-container" style="padding: 24px; margin-top: -60px; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; width: 100%;">
+                <div class="avatar-wrapper" style="background: var(--card-bg); padding: 4px; border-radius: 50%; display: inline-block;">
+                    {% if profile_user.profile.avatar %}
+                        <img src="{{ profile_user.profile.avatar.url }}" alt="Avatar" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover;">
+                    {% else %}
+                        <div style="width: 120px; height: 120px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-size: 40px; color: #94a3b8;">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                {% if request.user != profile_user %}
+                    <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                        <button class="follow-btn btn {% if is_following %}following btn-outline{% endif %}" data-user-id="{{ profile_user.id }}">
+                            {% if is_following %}<i class="fa-solid fa-user-check"></i> Following{% else %}<i class="fa-solid fa-user-plus"></i> Follow{% endif %}
+                        </button>
+                        <a href="{% url 'chat:chat_view' profile_user.username %}" class="btn btn-outline" style="text-decoration: none; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-regular fa-comment"></i> Message
+                        </a>
+                    </div>
+                {% else %}
+                    <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                        <a href="{% url 'profiles:edit_profile' %}" class="btn btn-outline" style="text-decoration: none; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-pen-to-square"></i> Edit Profile
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="profile-details" style="margin-top: 16px;">
+                <h2 style="font-weight: 700; font-size: 1.5rem; color: var(--text-main);">{{ profile_user.username }}</h2>
+                <p style="color: var(--text-muted); font-size: 0.95rem;">@{{ profile_user.username|lower }}</p>
+                
+                <p class="profile-bio" style="margin-top: 12px; font-size: 1rem;">{{ profile.bio|default:"No bio provided yet." }}</p>
+                
+                <div class="profile-stats" style="margin-top: 20px; display: flex; gap: 24px; color: var(--text-muted);">
+                    <span><strong style="color: var(--text-main);" class="followers-count-display" data-user-id="{{ profile_user.id }}">{{ profile.followed_by.count }}</strong> Followers</span>
+                    <span><strong style="color: var(--text-main);" {% if request.user == profile_user %}class="my-following-count-display"{% endif %}>{{ profile.follows.count }}</strong> Following</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-posts">
+        <h3 style="margin-bottom: 16px; font-size: 1.1rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Posts</h3>
+        
+        {% for post in posts %}
+        <div class="post-card card">
+            <div class="post-header">
+                <div class="post-author-wrap">
+                    {% if post.author.profile.avatar %}
+                        <img src="{{ post.author.profile.avatar.url }}" alt="Avatar" class="avatar-sm">
+                    {% else %}
+                        <div class="avatar-placeholder-sm"><i class="fa-solid fa-user"></i></div>
+                    {% endif %}
+                    
+                    <div class="post-author-info">
+                        <span class="post-author-name">{{ post.author.username }}</span>
+                        <span class="post-date">{{ post.created_at|date:"d M \a\t g:i A" }}</span>
+                    </div>
+                </div>
+                {% if request.user == post.author %}
+                    <button class="icon-btn delete-post-btn" data-post-id="{{ post.id }}" title="Delete post">
+                        <i class="fa-regular fa-trash-can"></i>
+                    </button>
+                {% endif %}
+            </div>
+            
+            <div class="post-body">
+                <p>{{ post.content }}</p>
+            </div>
+            
+            {% if post.image %}
+                <div class="post-image-container">
+                    <img src="{{ post.image.url }}" alt="Post image" class="post-image">
+                </div>
+            {% endif %}
+            
+            <div class="post-stats-mini">
+                <span class="like-count-display">{{ post.total_likes }} Like{{ post.total_likes|pluralize }}</span>
+                <span class="comment-count-display">{{ post.comments.count }} Comment{{ post.comments.count|pluralize }}</span>
+            </div>
+            
+            <div class="post-footer">
+                <button class="like-btn {% if request.user in post.likes.all %}liked{% endif %}" data-post-id="{{ post.id }}">
+                    <i class="fa-regular fa-heart"></i> Like
+                </button>
+                <button class="comment-btn" data-post-id="{{ post.id }}">
+                    <i class="fa-regular fa-comment"></i> Comment
+                </button>
+                <button class="share-btn">
+                    <i class="fa-solid fa-share-nodes"></i> Share
+                </button>
+            </div>
+            
+            <div class="post-inline-comment">
+                {% if user.profile.avatar %}
+                    <img src="{{ user.profile.avatar.url }}" alt="Avatar" class="avatar-sm">
+                {% else %}
+                    <div class="avatar-placeholder-sm"><i class="fa-solid fa-user"></i></div>
+                {% endif %}
+                <input type="text" placeholder="Write a comment..." class="comment-btn" data-post-id="{{ post.id }}" readonly style="cursor: pointer;">
+            </div>
+        </div>
+        {% empty %}
+        <div class="empty-state card">
+            <p>This user hasn't posted anything yet.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+    </div> <!-- End feed-column -->
+    
+    {% include "sidebar_right.html" %}
+</div> <!-- End app-container -->
+
+{% endblock %}

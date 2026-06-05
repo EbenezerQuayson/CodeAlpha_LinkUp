@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkUp</title>
+    {% load static %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body data-current-user="{{ user.username|default:'' }}">
+    {% block navbar %}
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-left">
+                <a href="{% url 'feed:global_feed' %}" class="logo">
+                    <div class="logo-icon"><i class="fa-solid fa-link"></i></div>
+                    <span>LinkUp</span>
+                </a>
+                <div class="search-bar">
+                    <i class="fa-solid fa-search"></i>
+                    <input type="text" placeholder="Search">
+                </div>
+            </div>
+            <div class="nav-right">
+                {% if user.is_authenticated %}
+                    <button class="icon-btn"><i class="fa-regular fa-bell"></i><span class="badge">3</span></button>
+                    <a href="{% url 'chat:conversations_list' %}" class="icon-btn" style="text-decoration: none;"><i class="fa-regular fa-envelope"></i></a>
+                    <div class="user-dropdown">
+                        {% if user.profile.avatar %}
+                            <img src="{{ user.profile.avatar.url }}" alt="Avatar" class="avatar-sm">
+                        {% else %}
+                            <div class="avatar-placeholder-sm"><i class="fa-solid fa-user"></i></div>
+                        {% endif %}
+                        <span class="user-name">{{ user.username }}</span>
+                        <i class="fa-solid fa-chevron-down"></i>
+                        <!-- Dropdown content can go here -->
+                        <div class="dropdown-menu">
+                            <a href="{% url 'profiles:profile_view' user.username %}">Profile</a>
+                            <a href="{% url 'profiles:edit_profile' %}">Edit Profile</a>
+                            <form action="{% url 'logout' %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit">Logout</button>
+                            </form>
+                        </div>
+                    </div>
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-primary">Login</a>
+                    <a href="{% url 'profiles:register' %}" class="btn btn-outline">Sign Up</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+    {% endblock navbar %}
+
+    <main class="main-content">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Comments Modal -->
+    <div id="commentsModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Comments</h3>
+                <button class="close-modal-btn">&times;</button>
+            </div>
+            <div class="modal-body" id="commentsList">
+                <!-- Comments will be injected here via JS -->
+            </div>
+            <div class="modal-footer">
+                <form id="commentForm">
+                    <input type="hidden" id="modalPostId">
+                    <input type="text" id="commentInput" placeholder="Write a comment..." required>
+                    <button type="submit" class="btn btn-primary btn-small">Post</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

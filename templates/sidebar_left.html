@@ -1,0 +1,44 @@
+<aside class="sidebar-left">
+    <div class="profile-summary-card card">
+        <div class="cover-photo"></div>
+        <div class="profile-info">
+            {% if user.profile.avatar %}
+                <img src="{{ user.profile.avatar.url }}" alt="Avatar" class="avatar-md">
+            {% else %}
+                <div class="avatar-placeholder-md"><i class="fa-solid fa-user"></i></div>
+            {% endif %}
+            <h4>{{ user.username }}</h4>
+            <p class="text-muted">@{{ user.username|lower }}</p>
+            
+            <div class="profile-stats-mini">
+                <div class="stat">
+                    <span class="stat-val followers-count-display" data-user-id="{{ user.id }}">{{ user.profile.followed_by.count }}</span>
+                    <span class="stat-label">Followers</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-val my-following-count-display">{{ user.profile.follows.count }}</span>
+                    <span class="stat-label">Following</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-val">{{ user.posts.count }}</span>
+                    <span class="stat-label">Posts</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <nav class="side-nav">
+        {% url 'feed:global_feed' as feed_url %}
+        <a href="{{ feed_url }}" class="{% if request.path == feed_url %}active{% endif %}"><i class="fa-solid fa-house"></i> Feed</a>
+        {% url 'profiles:users_list' as users_url %}
+        <a href="{{ users_url }}" class="{% if request.path == users_url %}active{% endif %}"><i class="fa-solid fa-user-group"></i> Discover</a>
+        {% url 'chat:conversations_list' as chat_url %}
+        <a href="{{ chat_url }}" class="{% if chat_url in request.path %}active{% endif %}"><i class="fa-regular fa-comment-dots"></i> Messages</a>
+        {% url 'profiles:profile_view' user.username as profile_url %}
+        <a href="{{ profile_url }}" class="{% if request.path == profile_url %}active{% endif %}"><i class="fa-regular fa-user"></i> My Profile</a>
+        {% url 'profiles:edit_profile' as edit_url %}
+        <a href="{{ edit_url }}" class="{% if request.path == edit_url %}active{% endif %}"><i class="fa-solid fa-gear"></i> Settings</a>
+    </nav>
+
+
+</aside>

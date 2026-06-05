@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="app-container">
+    {% include "sidebar_left.html" %}
+    
+    <div class="feed-column">
+        <div class="page-header card">
+            <h2><i class="fa-solid fa-pen-to-square"></i> Edit Profile</h2>
+            <p class="text-muted">Update your profile information</p>
+        </div>
+
+        <div class="card edit-profile-card">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <!-- Avatar Section -->
+                <div class="edit-avatar-section">
+                    <div class="edit-avatar-preview">
+                        {% if profile.avatar %}
+                            <img src="{{ profile.avatar.url }}" alt="Current avatar" class="avatar-lg">
+                        {% else %}
+                            <div class="avatar-placeholder-lg"><i class="fa-solid fa-user"></i></div>
+                        {% endif %}
+                    </div>
+                    <div class="edit-avatar-controls">
+                        <label for="avatarInput" class="btn btn-outline btn-small" style="cursor: pointer;">
+                            <i class="fa-solid fa-camera"></i> Change Photo
+                        </label>
+                        <input type="file" name="avatar" id="avatarInput" accept="image/*" style="display: none;">
+                        <p class="text-muted" style="font-size: 0.8rem; margin-top: 8px;">JPG, PNG or GIF. Max 5MB.</p>
+                    </div>
+                </div>
+
+                <!-- Username (read-only) -->
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" value="{{ user.username }}" disabled class="form-input">
+                    <p class="text-muted" style="font-size: 0.8rem; margin-top: 4px;">Username cannot be changed.</p>
+                </div>
+
+                <!-- Bio -->
+                <div class="form-group">
+                    <label for="bio">Bio</label>
+                    <textarea name="bio" id="bio" rows="4" class="form-textarea" placeholder="Tell people about yourself...">{{ profile.bio }}</textarea>
+                    <p class="text-muted" style="font-size: 0.8rem; margin-top: 4px;">Max 500 characters.</p>
+                </div>
+
+                <!-- Actions -->
+                <div class="edit-profile-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa-solid fa-check"></i> Save Changes
+                    </button>
+                    <a href="{% url 'profiles:profile_view' user.username %}" class="btn btn-outline" style="text-decoration: none;">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    {% include "sidebar_right.html" %}
+</div>
+{% endblock %}

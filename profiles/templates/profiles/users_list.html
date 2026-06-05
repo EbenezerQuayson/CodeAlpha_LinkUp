@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="app-container">
+    {% include "sidebar_left.html" %}
+    
+    <div class="feed-column">
+        <div class="page-header card">
+            <h2><i class="fa-solid fa-users"></i> Discover People</h2>
+            <p class="text-muted">Find and connect with other users on LinkUp</p>
+        </div>
+
+        <div class="users-grid">
+            {% for u in users %}
+            <div class="user-card card">
+                <div class="user-card-header">
+                    {% if u.profile.avatar %}
+                        <img src="{{ u.profile.avatar.url }}" alt="{{ u.username }}'s avatar" class="avatar-md">
+                    {% else %}
+                        <div class="avatar-placeholder-md"><i class="fa-solid fa-user"></i></div>
+                    {% endif %}
+                </div>
+                <div class="user-card-body">
+                    <a href="{% url 'profiles:profile_view' u.username %}" class="user-card-name">{{ u.username }}</a>
+                    <p class="user-card-handle">@{{ u.username|lower }}</p>
+                    <p class="user-card-bio">{{ u.profile.bio|default:"No bio yet"|truncatechars:80 }}</p>
+                    
+                    <div class="user-card-stats">
+                        <span><strong class="followers-count-display" data-user-id="{{ u.id }}">{{ u.profile.followed_by.count }}</strong> followers</span>
+                        <span><strong class="following-count-display" data-user-id="{{ u.id }}">{{ u.profile.follows.count }}</strong> following</span>
+                    </div>
+                </div>
+                <div class="user-card-actions">
+                    {% if u.id in following_ids %}
+                        <button class="btn btn-outline btn-small follow-btn following" data-user-id="{{ u.id }}">
+                            <i class="fa-solid fa-user-check"></i> Following
+                        </button>
+                    {% else %}
+                        <button class="btn btn-small follow-btn" data-user-id="{{ u.id }}">
+                            <i class="fa-solid fa-user-plus"></i> Follow
+                        </button>
+                    {% endif %}
+                    <a href="{% url 'chat:chat_view' u.username %}" class="btn btn-outline btn-small" style="text-decoration: none;">
+                        <i class="fa-regular fa-comment"></i> Message
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="empty-state card">
+                <i class="fa-solid fa-users" style="font-size: 2rem; color: var(--text-muted); margin-bottom: 12px;"></i>
+                <p>No other users yet. Invite your friends to join LinkUp!</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    {% include "sidebar_right.html" %}
+</div>
+{% endblock %}

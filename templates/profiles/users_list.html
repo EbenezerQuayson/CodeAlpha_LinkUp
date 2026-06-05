@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="app-container">
+    {% include "sidebar_left.html" %}
+
+    <div class="feed-column">
+        <div class="page-header">
+            <h2>Discover Users</h2>
+            <p>Find and follow interesting people on LinkUp</p>
+        </div>
+
+        {% if users %}
+        <div class="users-grid">
+            {% for user in users %}
+            <div class="user-card card">
+                <div class="user-info">
+                    {% if user.profile.avatar %}
+                    <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}'s avatar" class="avatar-md">
+                    {% else %}
+                    <div class="avatar-placeholder-md"><i class="fa-solid fa-user"></i></div>
+                    {% endif %}
+
+                    <div class="user-details">
+                        <h3 class="username">{{ user.username }}</h3>
+                        <p class="user-bio">{{ user.profile.bio|default:"No bio yet"|truncatechars:100 }}</p>
+                        <div class="user-stats">
+                            <span><strong>{{ user.profile.followed_by.count }}</strong> Followers</span>
+                            <span><strong>{{ user.profile.follows.count }}</strong> Following</span>
+                        </div>
+                    </div>
+                </div>
+
+                {% if request.user != user %}
+                <div class="user-action">
+                    <button class="follow-btn btn {% if request.user.profile in user.profile.followed_by.all %}btn-outline{% endif %}"
+                            data-user-id="{{ user.id }}">
+                        {% if request.user.profile in user.profile.followed_by.all %}
+                        <i class="fa-solid fa-user-check"></i> Following
+                        {% else %}
+                        <i class="fa-solid fa-user-plus"></i> Follow
+                        {% endif %}
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state card">
+            <p>No users to display.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    {% include "sidebar_right.html" %}
+</div>
+{% endblock %}

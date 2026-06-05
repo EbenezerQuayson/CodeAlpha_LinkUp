@@ -1,0 +1,99 @@
+<aside class="sidebar-right">
+    <div class="messages-widget card">
+        <div class="widget-header">
+            <h4>Messages</h4>
+            <button class="icon-btn-small"><i class="fa-solid fa-up-right-and-down-left-from-center"></i></button>
+        </div>
+        <div class="search-mini">
+            <i class="fa-solid fa-search"></i>
+            <input type="text" placeholder="Search...">
+        </div>
+        <div class="messages-tabs">
+            <span class="active" id="tab-general" style="cursor: pointer;">General {% if general_unread_count > 0 %}({{ general_unread_count }}){% endif %}</span>
+            <span id="tab-requests" style="cursor: pointer;" class="{% if request_unread_count > 0 %}text-blue{% endif %}">Requests {% if request_unread_count > 0 %}({{ request_unread_count }}){% endif %}</span>
+        </div>
+        
+        <div class="messages-list" id="list-general">
+            {% for thread in general_threads %}
+            <a href="{% url 'chat:chat_view' thread.other_user.username %}" style="text-decoration: none; color: inherit; display: block;">
+                <div class="message-item {% if thread.unread_count > 0 %}unread{% endif %}">
+                    {% if thread.other_user.profile.avatar %}
+                        <img src="{{ thread.other_user.profile.avatar.url }}" alt="Avatar" class="avatar-sm" style="width: 32px; height: 32px; border-radius: 50%;">
+                    {% else %}
+                        <div class="avatar-placeholder-sm"><i class="fa-solid fa-user"></i></div>
+                    {% endif %}
+                    <div class="msg-content">
+                        <div class="msg-header"><strong>{{ thread.other_user.username }}</strong></div>
+                        <p>
+                            {% if thread.last_message %}
+                                {{ thread.last_message.body|truncatechars:20 }}
+                            {% else %}
+                                No messages yet.
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </a>
+            {% empty %}
+            <div style="padding: 12px; text-align: center; color: var(--text-muted); font-size: 0.9rem;">
+                No general messages yet.
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="messages-list" id="list-requests" style="display: none;">
+            {% for thread in request_threads %}
+            <a href="{% url 'chat:chat_view' thread.other_user.username %}" style="text-decoration: none; color: inherit; display: block;">
+                <div class="message-item {% if thread.unread_count > 0 %}unread{% endif %}">
+                    {% if thread.other_user.profile.avatar %}
+                        <img src="{{ thread.other_user.profile.avatar.url }}" alt="Avatar" class="avatar-sm" style="width: 32px; height: 32px; border-radius: 50%;">
+                    {% else %}
+                        <div class="avatar-placeholder-sm"><i class="fa-solid fa-user"></i></div>
+                    {% endif %}
+                    <div class="msg-content">
+                        <div class="msg-header"><strong>{{ thread.other_user.username }}</strong></div>
+                        <p>
+                            {% if thread.last_message %}
+                                {{ thread.last_message.body|truncatechars:20 }}
+                            {% else %}
+                                No messages yet.
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </a>
+            {% empty %}
+            <div style="padding: 12px; text-align: center; color: var(--text-muted); font-size: 0.9rem;">
+                No message requests.
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const tabGeneral = document.getElementById('tab-general');
+    const tabRequests = document.getElementById('tab-requests');
+    const listGeneral = document.getElementById('list-general');
+    const listRequests = document.getElementById('list-requests');
+
+    if (tabGeneral && tabRequests) {
+        tabGeneral.addEventListener('click', () => {
+            tabGeneral.classList.add('active');
+            tabRequests.classList.remove('active');
+            listGeneral.style.display = 'block';
+            listRequests.style.display = 'none';
+        });
+
+        tabRequests.addEventListener('click', () => {
+            tabRequests.classList.add('active');
+            tabGeneral.classList.remove('active');
+            listRequests.style.display = 'block';
+            listGeneral.style.display = 'none';
+        });
+    }
+});
+</script>
+
+
+</aside>

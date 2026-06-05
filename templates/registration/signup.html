@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block navbar %}
+<!-- Hide navbar on auth pages -->
+{% endblock navbar %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card card">
+        <div class="auth-logo-wrap">
+            <div class="logo-icon"><i class="fa-solid fa-link"></i></div>
+        </div>
+        <h2>Join LinkUp</h2>
+        <p class="auth-subtitle">Create a new account to get started</p>
+        
+        <form method="post" novalidate>
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+                <div class="field-error" style="margin-bottom: 16px; justify-content: center;">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                    <div>{{ form.non_field_errors }}</div>
+                </div>
+            {% endif %}
+            
+            {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    
+                    {{ field }}
+                    
+                    {% if field.errors %}
+                        <div class="field-error">
+                            <i class="fa-solid fa-circle-xmark"></i>
+                            <div>{{ field.errors.0 }}</div>
+                        </div>
+                    {% elif field.help_text %}
+                        <div class="field-help">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <div>{{ field.help_text|safe }}</div>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            
+            <div style="text-align: center; margin-top: 16px;">
+                <button type="submit" class="btn btn-primary" style="padding: 10px 32px; font-size: 1rem;">Sign Up</button>
+            </div>
+        </form>
+        
+        <p class="auth-link">Already have an account? <a href="{% url 'login' %}">Log in</a></p>
+    </div>
+</div>
+{% endblock %}

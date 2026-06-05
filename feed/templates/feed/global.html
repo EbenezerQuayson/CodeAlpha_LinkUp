@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="app-container">
+    {% include "sidebar_left.html" %}
+    
+    <div class="feed-column">
+        <!-- Stories Section -->
+        <div class="stories-container">
+            <div class="story-item">
+                <div class="story-avatar add-story">
+                    <i class="fa-solid fa-plus"></i>
+                </div>
+                <span class="story-username">Your Story</span>
+            </div>
+            <div class="story-item">
+                <div class="story-avatar" style="background: url('https://i.pravatar.cc/150?img=33') center/cover;"></div>
+                <span class="story-username">Mia</span>
+            </div>
+            <div class="story-item">
+                <div class="story-avatar" style="background: url('https://i.pravatar.cc/150?img=47') center/cover;"></div>
+                <span class="story-username">Noah</span>
+            </div>
+            <div class="story-item">
+                <div class="story-avatar" style="background: url('https://i.pravatar.cc/150?img=12') center/cover;"></div>
+                <span class="story-username">Ava</span>
+            </div>
+            <div class="story-item">
+                <div class="story-avatar" style="background: url('https://i.pravatar.cc/150?img=5') center/cover;"></div>
+                <span class="story-username">Eli</span>
+            </div>
+            <div class="story-item">
+                <div class="story-avatar" style="background: url('https://i.pravatar.cc/150?img=22') center/cover;"></div>
+                <span class="story-username">Zoe</span>
+            </div>
+        </div>
+
+<!-- Create Post Card -->
+<div class="post-create-card card">
+    <form action="#" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="create-input-wrap">
+            {% if user.profile.avatar %}
+                <img src="{{ user.profile.avatar.url }}" alt="Avatar" class="avatar-sm">
+            {% else %}
+                <div class="avatar-placeholder-sm"><i class="fa-solid fa-user"></i></div>
+            {% endif %}
+            <input type="text" placeholder="What's on your mind?" name="content" required>
+        </div>
+        
+        <div class="create-actions">
+            <button type="button" class="action-btn" onclick="document.getElementById('postImageInput').click();">
+                <i class="fa-regular fa-image blue"></i> Image/Video
+            </button>
+            <input type="file" name="image" id="postImageInput" accept="image/*" style="display:none;">
+            
+            <button type="button" class="action-btn">
+                <i class="fa-solid fa-paperclip orange"></i> Attachment
+            </button>
+            
+            <button type="button" class="action-btn">
+                <i class="fa-solid fa-video pink"></i> Live
+            </button>
+            
+            <button type="submit" class="btn btn-primary" style="margin-left: auto;">Share Post</button>
+        </div>
+    </form>
+</div>
+
+<!-- Feed Posts -->
+{% for post in posts %}
+<div class="post-card card">
+    <div class="post-header">
+        <div class="post-author-wrap">
+            {% if post.author.profile.avatar %}
+                <img src="{{ post.author.profile.avatar.url }}" alt="Avatar" class="avatar-sm">
+            {% else %}
+                <div class="avatar-placeholder-sm"><i class="fa-solid fa-user"></i></div>
+            {% endif %}
+            
+            <div class="post-author-info">
+                <a href="{% url 'profiles:profile_view' post.author.username %}" class="post-author-name">
+                    {{ post.author.username }}
+                </a>
+                <span class="post-date">{{ post.created_at|date:"d M \a\t g:i A" }}</span>
+            </div>
+        </div>
+        
+        <div style="display: flex; gap: 8px; align-items: center;">
+            {% if request.user != post.author and post.author.id not in followed_users %}
+                <button class="btn btn-outline btn-small follow-btn" data-user-id="{{ post.author.id }}">
+                    <i class="fa-solid fa-user-plus"></i> Follow
+                </button>
+            {% endif %}
+            {% if request.user == post.author %}
+                <button class="icon-btn delete-post-btn" data-post-id="{{ post.id }}" title="Delete post">
+                    <i class="fa-regular fa-trash-can"></i>
+                </button>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="post-body">
+        <p>{{ post.content }}</p>
+    </div>
+    
+    {% if post.image %}
+        <div class="post-image-container">
+            <img src="{{ post.image.url }}" alt="Post image" class="post-image">
+        </div>
+    {% endif %}
+    
+    <div class="post-stats-mini">
+        <span class="like-count-display">{{ post.total_likes }} Like{{ post.total_likes|pluralize }}</span>
+        <span class="comment-count-display">{{ post.comments.count }} Comment{{ post.comments.count|pluralize }}</span>
+    </div>
+    
+    <div class="post-footer">
+        <button class="like-btn {% if request.user in post.likes.all %}liked{% endif %}" data-post-id="{{ post.id }}">
+            <i class="fa-regular fa-heart"></i> Like
+        </button>
+        <button class="comment-btn" data-post-id="{{ post.id }}">
+            <i class="fa-regular fa-comment"></i> Comment
+        </button>
+        <button class="share-btn">
+            <i class="fa-solid fa-share-nodes"></i> Share
+        </button>
+    </div>
+    
+    <div class="post-inline-comment">
+        {% if user.profile.avatar %}
+            <img src="{{ user.profile.avatar.url }}" alt="Avatar" class="avatar-sm">
+        {% else %}
+            <div class="avatar-placeholder-sm"><i class="fa-solid fa-user"></i></div>
+        {% endif %}
+        <!-- Using a readonly input that triggers the modal when clicked -->
+        <input type="text" placeholder="Write a comment..." class="comment-btn" data-post-id="{{ post.id }}" readonly style="cursor: pointer;">
+    </div>
+</div>
+{% empty %}
+<div class="empty-state">
+    <p>No posts yet. Be the first to share something!</p>
+</div>
+{% endfor %}
+
+    </div> <!-- End feed-column -->
+    
+    {% include "sidebar_right.html" %}
+</div> <!-- End app-container -->
+
+{% endblock %}

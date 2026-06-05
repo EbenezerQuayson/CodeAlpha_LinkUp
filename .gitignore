@@ -216,3 +216,15 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+ui_reference.jpg
+
+# Media files
+/media/avatars*
+/media/post_images*
+/media/profile_pictures*
+/media/chat_media*
+
+# Implementation plans
+IMPLEMENTATION_PLAN.md
+NEXT_STEPS.md
+PROGRESS_STATUS.md
