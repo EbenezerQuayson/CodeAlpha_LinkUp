@@ -5,54 +5,126 @@
     {% include "sidebar_left.html" %}
 
     <div class="feed-column">
-        <div class="page-header">
-            <h2>Discover Users</h2>
-            <p>Find and follow interesting people on LinkUp</p>
+        <!-- Page header with search -->
+        <div class="discover-header card">
+            <div class="discover-header-top">
+                <div>
+                    <h2><i class="fa-solid fa-compass"></i> Discover People</h2>
+                    <p class="text-muted">Find and connect with other users on LinkUp</p>
+                </div>
+                <div class="discover-count-badge">
+                    <span>{{ users|length }}</span> {{ users|length|pluralize:"person,people" }}
+                </div>
+            </div>
+            <div class="discover-search">
+                <i class="fa-solid fa-search"></i>
+                <input type="text" id="userSearchInput" placeholder="Search by username or bio..." autocomplete="off">
+            </div>
         </div>
 
-        {% if users %}
-        <div class="users-grid">
-            {% for user in users %}
-            <div class="user-card card">
-                <div class="user-info">
-                    {% if user.profile.avatar %}
-                    <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}'s avatar" class="avatar-md">
-                    {% else %}
-                    <div class="avatar-placeholder-md"><i class="fa-solid fa-user"></i></div>
-                    {% endif %}
+        <!-- Users grid -->
+        <div class="users-grid-v2" id="usersGrid">
+            {% for u in users %}
+            <div class="user-card-v2 card" data-username="{{ u.username|lower }}" data-bio="{{ u.profile.bio|lower }}" style="animation-delay: {{ forloop.counter0 }}00ms">
+                <!-- Gradient banner -->
+                <div class="user-card-banner"></div>
 
-                    <div class="user-details">
-                        <h3 class="username">{{ user.username }}</h3>
-                        <p class="user-bio">{{ user.profile.bio|default:"No bio yet"|truncatechars:100 }}</p>
-                        <div class="user-stats">
-                            <span><strong>{{ user.profile.followed_by.count }}</strong> Followers</span>
-                            <span><strong>{{ user.profile.follows.count }}</strong> Following</span>
+                <!-- Avatar -->
+                <div class="user-card-avatar-wrap">
+                    {% if u.profile.avatar %}
+                        <img src="{{ u.profile.avatar.url }}" alt="{{ u.username }}'s avatar" class="user-card-avatar">
+                    {% else %}
+                        <div class="user-card-avatar-placeholder">
+                            <i class="fa-solid fa-user"></i>
                         </div>
+                    {% endif %}
+                </div>
+
+                <!-- Info -->
+                <div class="user-card-info">
+                    <a href="{% url 'profiles:profile_view' u.username %}" class="user-card-name-link">{{ u.username }}</a>
+                    <p class="user-card-handle-v2">@{{ u.username|lower }}</p>
+                    <p class="user-card-bio-v2">{{ u.profile.bio|default:"No bio yet"|truncatechars:80 }}</p>
+                </div>
+
+                <!-- Stats -->
+                <div class="user-card-stats-v2">
+                    <div class="user-stat-item">
+                        <strong class="followers-count-display" data-user-id="{{ u.id }}">{{ u.profile.followed_by.count }}</strong>
+                        <span>Followers</span>
+                    </div>
+                    <div class="user-stat-divider"></div>
+                    <div class="user-stat-item">
+                        <strong class="following-count-display" data-user-id="{{ u.id }}">{{ u.profile.follows.count }}</strong>
+                        <span>Following</span>
                     </div>
                 </div>
 
-                {% if request.user != user %}
-                <div class="user-action">
-                    <button class="follow-btn btn {% if request.user.profile in user.profile.followed_by.all %}btn-outline{% endif %}"
-                            data-user-id="{{ user.id }}">
-                        {% if request.user.profile in user.profile.followed_by.all %}
-                        <i class="fa-solid fa-user-check"></i> Following
-                        {% else %}
-                        <i class="fa-solid fa-user-plus"></i> Follow
-                        {% endif %}
-                    </button>
+                <!-- Actions -->
+                <div class="user-card-actions-v2">
+                    {% if u.id in following_ids %}
+                        <button class="btn btn-outline btn-small follow-btn following" data-user-id="{{ u.id }}">
+                            <i class="fa-solid fa-user-check"></i> Following
+                        </button>
+                    {% else %}
+                        <button class="btn btn-small follow-btn" data-user-id="{{ u.id }}">
+                            <i class="fa-solid fa-user-plus"></i> Follow
+                        </button>
+                    {% endif %}
+                    <a href="{% url 'chat:chat_view' u.username %}" class="btn btn-outline btn-small user-card-msg-btn" title="Message {{ u.username }}">
+                        <i class="fa-regular fa-comment"></i>
+                    </a>
                 </div>
-                {% endif %}
+            </div>
+            {% empty %}
+            <div class="empty-state-v2 card" id="emptyStateDefault">
+                <div class="empty-state-icon">
+                    <i class="fa-solid fa-users"></i>
+                </div>
+                <h3>No people to discover yet</h3>
+                <p>Invite your friends to join LinkUp and start connecting!</p>
             </div>
             {% endfor %}
         </div>
-        {% else %}
-        <div class="empty-state card">
-            <p>No users to display.</p>
+
+        <!-- No search results message (hidden by default) -->
+        <div class="empty-state-v2 card" id="noSearchResults" style="display: none;">
+            <div class="empty-state-icon">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+            <h3>No results found</h3>
+            <p>Try a different search term</p>
         </div>
-        {% endif %}
     </div>
 
     {% include "sidebar_right.html" %}
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('userSearchInput');
+    const grid = document.getElementById('usersGrid');
+    const noResults = document.getElementById('noSearchResults');
+
+    if (searchInput && grid) {
+        searchInput.addEventListener('input', () => {
+            const query = searchInput.value.toLowerCase().trim();
+            const cards = grid.querySelectorAll('.user-card-v2');
+            let visibleCount = 0;
+
+            cards.forEach(card => {
+                const username = card.dataset.username || '';
+                const bio = card.dataset.bio || '';
+                const matches = !query || username.includes(query) || bio.includes(query);
+                card.style.display = matches ? '' : 'none';
+                if (matches) visibleCount++;
+            });
+
+            if (noResults) {
+                noResults.style.display = (visibleCount === 0 && cards.length > 0) ? '' : 'none';
+            }
+        });
+    }
+});
+</script>
 {% endblock %}
