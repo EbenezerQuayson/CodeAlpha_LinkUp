@@ -35,36 +35,32 @@
             </div>
         </div>
 
-<!-- Create Post Card -->
+<!-- Create Post Card (Triggers Modal) -->
 <div class="post-create-card card">
-    <form action="#" method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="create-input-wrap">
-            {% if user.profile.avatar %}
-                <img src="{{ user.profile.avatar.url }}" alt="Avatar" class="avatar-sm">
-            {% else %}
-                <div class="avatar-placeholder-sm"><i class="fa-solid fa-user"></i></div>
-            {% endif %}
-            <input type="text" placeholder="What's on your mind?" name="content" required>
-        </div>
+    <div class="create-input-wrap create-post-trigger" style="cursor: text;">
+        {% if user.profile.avatar %}
+            <img src="{{ user.profile.avatar.url }}" alt="Avatar" class="avatar-sm">
+        {% else %}
+            <div class="avatar-placeholder-sm"><i class="fa-solid fa-user"></i></div>
+        {% endif %}
+        <input type="text" placeholder="What's on your mind?" readonly style="cursor: text; pointer-events: none; background: transparent;">
+    </div>
+    
+    <div class="create-actions">
+        <button type="button" class="action-btn create-post-trigger" data-tab="image">
+            <i class="fa-regular fa-image blue"></i> Image/Video
+        </button>
         
-        <div class="create-actions">
-            <button type="button" class="action-btn" onclick="document.getElementById('postImageInput').click();">
-                <i class="fa-regular fa-image blue"></i> Image/Video
-            </button>
-            <input type="file" name="image" id="postImageInput" accept="image/*" style="display:none;">
-            
-            <button type="button" class="action-btn">
-                <i class="fa-solid fa-paperclip orange"></i> Attachment
-            </button>
-            
-            <button type="button" class="action-btn">
-                <i class="fa-solid fa-video pink"></i> Live
-            </button>
-            
-            <button type="submit" class="btn btn-primary" style="margin-left: auto;">Share Post</button>
-        </div>
-    </form>
+        <button type="button" class="action-btn create-post-trigger" data-tab="attachment">
+            <i class="fa-solid fa-paperclip orange"></i> Attachment
+        </button>
+        
+        <button type="button" class="action-btn create-post-trigger" data-tab="live">
+            <i class="fa-solid fa-video pink"></i> Live
+        </button>
+        
+        <button type="button" class="btn btn-primary create-post-trigger" style="margin-left: auto;">Share Post</button>
+    </div>
 </div>
 
 <!-- Feed Posts -->
@@ -104,7 +100,11 @@
         <p>{{ post.content }}</p>
     </div>
     
-    {% if post.image %}
+    {% if post.video %}
+        <div class="post-image-container" style="background-color: #000;">
+            <video src="{{ post.video.url }}" class="post-video" controls style="width: 100%; max-height: clamp(250px, 50vh, 400px); display: block;"></video>
+        </div>
+    {% elif post.image %}
         <div class="post-image-container">
             <img src="{{ post.image.url }}" alt="Post image" class="post-image">
         </div>

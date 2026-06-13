@@ -5,6 +5,7 @@ class Post(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
     content = models.TextField(max_length=1000)
     image = models.ImageField(upload_to='post_images/', blank=True, null=True)
+    video = models.FileField(upload_to='post_videos/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     # A ManyToMany field creates a clean table linking users to the posts they've liked
     likes = models.ManyToManyField(User, related_name='liked_posts', blank=True)

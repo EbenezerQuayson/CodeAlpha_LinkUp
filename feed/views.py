@@ -6,11 +6,21 @@ from profiles.models import Profile
 
 @login_required
 def global_feed(request):
+    error_msg = None
     if request.method == 'POST':
         content = request.POST.get('content')
-        image = request.FILES.get('image')
-        if content:
-            Post.objects.create(author=request.user, content=content, image=image)
+        media_file = request.FILES.get('image')
+        
+        if media_file and media_file.size > 50 * 1024 * 1024:
+            error_msg = "File size cannot exceed 50MB."
+        elif content or media_file:
+            post = Post(author=request.user, content=content)
+            if media_file:
+                if media_file.content_type.startswith('video/'):
+                    post.video = media_file
+                else:
+                    post.image = media_file
+            post.save()
             return redirect('feed:global_feed')
 
     posts = Post.objects.all().order_by('-created_at')
@@ -25,7 +35,8 @@ def global_feed(request):
         
     context = {
         'posts': posts,
-        'followed_users': list(followed_users)
+        'followed_users': list(followed_users),
+        'error_msg': error_msg
     }
     return render(request, 'feed/global.html', context)
 

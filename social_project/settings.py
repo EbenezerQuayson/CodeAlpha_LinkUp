@@ -31,15 +31,18 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'channels',
     'profiles',
     'feed',
     'chat',
+    'notifications',
 ]
 
 MIDDLEWARE = [
@@ -70,10 +73,13 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'social_project.wsgi.application'
+ASGI_APPLICATION = 'social_project.asgi.application'
 
-
-# Database
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 DATABASES = {

@@ -865,3 +865,330 @@ ul {
     font-size: 1rem;
     margin-bottom: 16px;
 }
+
+/* ═══════════════════════════════════════════
+   NOTIFICATION BELL & DROPDOWN
+═══════════════════════════════════════════ */
+
+.notif-bell-wrap {
+    position: relative;
+    z-index: 200;
+}
+
+/* Pulse ring when there are unread notifications */
+.notif-bell-wrap.has-unread #notifBellBtn i {
+    animation: bell-shake 0.8s cubic-bezier(.36,.07,.19,.97) both;
+    animation-iteration-count: 2;
+    color: var(--primary-color);
+}
+
+@keyframes bell-shake {
+    10%, 90% { transform: rotate(-3deg); }
+    20%, 80% { transform: rotate(5deg); }
+    30%, 50%, 70% { transform: rotate(-6deg); }
+    40%, 60% { transform: rotate(6deg); }
+}
+
+/* Notification Dropdown */
+.notif-dropdown {
+    position: absolute;
+    top: calc(100% + 14px);
+    right: -8px;
+    width: 370px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    /* Strong, clearly floating shadow */
+    box-shadow:
+        0 0 0 1px rgba(0,0,0,0.04),
+        0 4px 8px rgba(0,0,0,0.06),
+        0 16px 40px rgba(0,0,0,0.14);
+    z-index: 9000;
+    overflow: visible;  /* allow caret to show */
+    /* Hidden by default */
+    opacity: 0;
+    transform: translateY(-10px) scale(0.96);
+    pointer-events: none;
+    transition: opacity 0.22s cubic-bezier(0.16,1,0.3,1), transform 0.22s cubic-bezier(0.16,1,0.3,1);
+    transform-origin: top right;
+}
+
+/* Clip overflow only on the inner scroll area, not the whole panel */
+.notif-dropdown-inner {
+    border-radius: var(--border-radius);
+    overflow: hidden;
+}
+
+.notif-dropdown.open {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: all;
+}
+
+/* Small caret arrow above dropdown */
+.notif-dropdown::before {
+    content: '';
+    position: absolute;
+    top: -7px;
+    right: 20px;
+    width: 13px;
+    height: 13px;
+    background: var(--card-bg);
+    border-left: 1px solid rgba(0,0,0,0.08);
+    border-top: 1px solid rgba(0,0,0,0.08);
+    transform: rotate(45deg);
+    box-shadow: -2px -2px 4px rgba(0,0,0,0.04);
+    z-index: 1;
+}
+
+.notif-dropdown-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px 14px;
+    border-bottom: 1px solid var(--border-color);
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--text-main);
+    position: relative;
+    z-index: 2;
+    background: linear-gradient(to bottom, #fafbff, var(--card-bg));
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+}
+
+.notif-mark-all-btn {
+    background: transparent;
+    border: none;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: background 0.2s;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.notif-mark-all-btn:hover {
+    background: rgba(37, 99, 235, 0.08);
+}
+
+.notif-list {
+    max-height: 380px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-color) transparent;
+}
+.notif-list::-webkit-scrollbar { width: 4px; }
+.notif-list::-webkit-scrollbar-track { background: transparent; }
+.notif-list::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+
+/* Empty state in dropdown */
+.notif-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    color: var(--text-muted);
+    gap: 10px;
+}
+.notif-empty i {
+    font-size: 2.2rem;
+    opacity: 0.4;
+}
+.notif-empty p {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* Individual notification item */
+.notif-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 20px;
+    cursor: pointer;
+    transition: background 0.15s;
+    border-bottom: 1px solid var(--border-color);
+    position: relative;
+    animation: notif-slide-in 0.3s ease forwards;
+}
+@keyframes notif-slide-in {
+    from { opacity: 0; transform: translateX(12px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+.notif-item:last-child { border-bottom: none; }
+.notif-item:hover { background: var(--bg-color); }
+.notif-item.unread { background: rgba(37, 99, 235, 0.04); }
+.notif-item.unread::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 60%;
+    background: var(--primary-color);
+    border-radius: 0 2px 2px 0;
+}
+
+.notif-icon-wrap {
+    flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    color: white;
+}
+
+.notif-avatar {
+    flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+    position: relative;
+}
+
+.notif-avatar-wrap {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.notif-type-icon {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    color: white;
+    border: 2px solid var(--card-bg);
+}
+
+.notif-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.notif-message {
+    font-size: 0.88rem;
+    color: var(--text-main);
+    line-height: 1.4;
+    margin-bottom: 3px;
+}
+
+.notif-message strong {
+    font-weight: 700;
+}
+
+.notif-time {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+/* Animated badge on bell */
+.notif-badge {
+    animation: badge-pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+@keyframes badge-pop {
+    0%   { transform: scale(0); }
+    80%  { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+/* ═══════════════════════════════════════════
+   TOAST NOTIFICATIONS (pop-up alerts)
+═══════════════════════════════════════════ */
+
+.toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    pointer-events: none;
+}
+
+.toast {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.15);
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: 320px;
+    pointer-events: all;
+    animation: toast-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    border-left: 4px solid var(--primary-color);
+}
+.toast.toast-out {
+    animation: toast-out 0.35s ease forwards;
+}
+
+@keyframes toast-in {
+    from { opacity: 0; transform: translateX(40px) scale(0.9); }
+    to   { opacity: 1; transform: translateX(0) scale(1); }
+}
+@keyframes toast-out {
+    from { opacity: 1; transform: translateX(0) scale(1); }
+    to   { opacity: 0; transform: translateX(40px) scale(0.9); }
+}
+
+.toast-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    color: white;
+}
+.toast-body {
+    flex: 1;
+    min-width: 0;
+}
+.toast-title {
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--text-main);
+    margin-bottom: 2px;
+}
+.toast-msg {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.toast-close {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0;
+    flex-shrink: 0;
+    line-height: 1;
+    transition: color 0.2s;
+}
+.toast-close:hover { color: var(--text-main); }
+

@@ -268,17 +268,101 @@
                 .then(res => res.json())
                 .then(data => {
                     if(data.success) {
-                        bubble.innerHTML = `<span class="message-text">${data.new_body}</span>`;
-                        // add (edited) tag if it doesn't exist
-                        let metaSpan = currentMessageWrapper.querySelector('.message-meta');
-                        if (metaSpan && !metaSpan.querySelector('.edited-tag')) {
-                            metaSpan.innerHTML += ' <span class="edited-tag" style="opacity: 0.7; margin-left: 4px;">(edited)</span>';
-                        }
+                        // Let WS handle the DOM update to ensure sync
                     } else {
                         alert(data.error || "Failed to edit message");
                         bubble.innerHTML = originalHTML;
                     }
                 });
+            });
+        });
+
+        // ── WebSockets for Real-Time Chat ──────────────
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const otherUsername = '{{ other_user.username }}';
+        const chatSocket = new WebSocket(`${protocol}//${window.location.host}/ws/chat/${otherUsername}/`);
+
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            
+            if (data.type === 'chat_message') {
+                const msg = data.message;
+                const isSender = msg.sender === '{{ request.user.username }}';
+                
+                // If this is our own message that we just sent, the page reload would catch it,
+                // but let's append it dynamically for instant feedback
+                const wrapper = document.createElement('div');
+                wrapper.className = 'message-wrapper';
+                wrapper.dataset.messageId = msg.id;
+                if (isSender) wrapper.dataset.isSender = "true";
+                
+                wrapper.style.display = 'flex';
+                wrapper.style.flexDirection = 'column';
+                wrapper.style.maxWidth = '70%';
+                wrapper.style.alignSelf = isSender ? 'flex-end' : 'flex-start';
+                
+                wrapper.innerHTML = `
+                    <div class="message-bubble" style="padding: 12px 16px; border-radius: 18px; ${isSender ? 'background: var(--primary-color); color: white; border-bottom-right-radius: 4px;' : 'background: var(--card-bg); color: var(--text-main); border: 1px solid var(--border-color); border-bottom-left-radius: 4px;'}">
+                        <span class="message-text">${msg.body}</span>
+                    </div>
+                    <span class="message-meta" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; ${isSender ? 'text-align: right;' : ''}">
+                        ${msg.timestamp}
+                    </span>
+                `;
+                
+                messagesArea.appendChild(wrapper);
+                messagesArea.scrollTop = messagesArea.scrollHeight;
+                
+                // Remove empty state message if it exists
+                const emptyState = messagesArea.querySelector('p');
+                if (emptyState && emptyState.textContent.includes('No messages yet')) {
+                    emptyState.parentElement.remove();
+                }
+                
+            } else if (data.type === 'chat_message_delete') {
+                const wrapper = document.querySelector(`.message-wrapper[data-message-id="${data.message_id}"]`);
+                if (wrapper) {
+                    const textSpan = wrapper.querySelector('.message-text');
+                    textSpan.innerHTML = '<i style="opacity: 0.8;">This message was deleted</i>';
+                    wrapper.removeAttribute('data-is-sender');
+                    const editedTag = wrapper.querySelector('.edited-tag');
+                    if (editedTag) editedTag.remove();
+                }
+                
+            } else if (data.type === 'chat_message_edit') {
+                const wrapper = document.querySelector(`.message-wrapper[data-message-id="${data.message_id}"]`);
+                if (wrapper) {
+                    const textSpan = wrapper.querySelector('.message-text');
+                    textSpan.innerHTML = data.new_body;
+                    let metaSpan = wrapper.querySelector('.message-meta');
+                    if (metaSpan && !metaSpan.querySelector('.edited-tag')) {
+                        metaSpan.innerHTML += ' <span class="edited-tag" style="opacity: 0.7; margin-left: 4px;">(edited)</span>';
+                    }
+                }
+            }
+        };
+
+        chatSocket.onclose = function(e) {
+            console.error('Chat socket closed unexpectedly');
+        };
+        
+        // Intercept form to send via AJAX so page doesn't reload, relying on WS for update
+        const chatForm = document.querySelector('.feed-column form');
+        chatForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const input = this.querySelector('input[name="body"]');
+            const body = input.value;
+            if (!body.trim()) return;
+            
+            fetch(this.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({body: body})
+            }).then(() => {
+                input.value = ''; // clear input
             });
         });
     });

@@ -1,0 +1,68 @@
+<!-- Create Post Modal -->
+<div id="createPostModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content create-post-modal-content">
+        <div class="modal-header">
+            <h3 id="createPostModalTitle">Create Post</h3>
+            <button class="close-modal-btn" id="closeCreatePostModal">&times;</button>
+        </div>
+        <form action="{% url 'feed:global_feed' %}" method="post" enctype="multipart/form-data" id="createPostForm">
+            {% csrf_token %}
+            <div class="modal-body">
+                <div class="post-author-wrap" style="margin-bottom: 16px;">
+                    {% if user.profile.avatar %}
+                        <img src="{{ user.profile.avatar.url }}" alt="Avatar" class="avatar-sm">
+                    {% else %}
+                        <div class="avatar-placeholder-sm"><i class="fa-solid fa-user"></i></div>
+                    {% endif %}
+                    <span class="post-author-name">{{ user.username }}</span>
+                </div>
+                
+                <textarea name="content" id="createPostContent" placeholder="What's on your mind?" rows="4" style="width: 100%; border: none; resize: none; font-size: 1.1rem; font-family: inherit; outline: none; margin-bottom: 16px;" required></textarea>
+                
+                <!-- Image/Video Section -->
+                <div id="postImageSection" class="post-modal-section" style="display: none; border: 1px dashed var(--border-color); border-radius: 8px; padding: 16px; text-align: center; margin-bottom: 16px; position: relative;">
+                    <div id="imagePreviewContainer" style="display: none;">
+                        <img id="postImagePreview" src="#" alt="Preview" style="max-width: 100%; max-height: 200px; border-radius: 8px; display: none;">
+                        <video id="postVideoPreview" src="#" style="max-width: 100%; max-height: 200px; border-radius: 8px; display: none;" controls></video>
+                        <button type="button" id="removeImageBtn" class="icon-btn-small" style="position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.5); color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;"><i class="fa-solid fa-times"></i></button>
+                    </div>
+                    <div id="imageInputPrompt">
+                        <i class="fa-regular fa-image" style="font-size: 2rem; color: #3b82f6; margin-bottom: 8px;"></i>
+                        <p style="color: var(--text-muted); font-size: 0.9rem;">Click here to upload an image or video</p>
+                    </div>
+                    <input type="file" name="image" id="modalImageInput" accept="image/*,video/*" style="display: none;">
+                </div>
+
+                <!-- Attachment Section -->
+                <div id="postAttachmentSection" class="post-modal-section" style="display: none; border: 1px dashed var(--border-color); border-radius: 8px; padding: 16px; text-align: center; margin-bottom: 16px;">
+                    <i class="fa-solid fa-paperclip" style="font-size: 2rem; color: #f97316; margin-bottom: 8px;"></i>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Click here to attach a document</p>
+                    <input type="file" name="attachment" id="modalAttachmentInput" style="display: none;">
+                </div>
+
+                <!-- Live Section (Dummy UI) -->
+                <div id="postLiveSection" class="post-modal-section" style="display: none; border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; text-align: center; margin-bottom: 16px; background: #000; color: #fff;">
+                    <i class="fa-solid fa-video" style="font-size: 3rem; color: #ec4899; margin-bottom: 16px;"></i>
+                    <p style="font-weight: 600;">Go Live (Coming Soon)</p>
+                    <p style="font-size: 0.85rem; color: #9ca3af;">Live streaming is not yet available.</p>
+                </div>
+
+            </div>
+            <div class="modal-footer" style="display: flex; flex-direction: column; gap: 16px;">
+                <div id="modalErrorMsg" style="display: none; color: #ef4444; font-size: 0.9rem; text-align: center; padding: 8px; border: 1px solid #ef4444; border-radius: 8px;"></div>
+                <div class="modal-tab-toggles" style="display: flex; gap: 12px; justify-content: space-around; border: 1px solid var(--border-color); border-radius: 8px; padding: 8px;">
+                    <button type="button" class="action-btn modal-tab-btn" data-tab="image">
+                        <i class="fa-regular fa-image blue"></i> Image/Video
+                    </button>
+                    <button type="button" class="action-btn modal-tab-btn" data-tab="attachment">
+                        <i class="fa-solid fa-paperclip orange"></i> Attachment
+                    </button>
+                    <button type="button" class="action-btn modal-tab-btn" data-tab="live">
+                        <i class="fa-solid fa-video pink"></i> Live
+                    </button>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Post</button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -31,6 +31,9 @@
                     </div>
                 {% else %}
                     <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                        <button class="btn btn-primary create-post-trigger" style="display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-plus"></i> Create Post
+                        </button>
                         <a href="{% url 'profiles:edit_profile' %}" class="btn btn-outline" style="text-decoration: none; display: flex; align-items: center; gap: 8px;">
                             <i class="fa-solid fa-pen-to-square"></i> Edit Profile
                         </a>
@@ -81,7 +84,11 @@
                 <p>{{ post.content }}</p>
             </div>
             
-            {% if post.image %}
+            {% if post.video %}
+                <div class="post-image-container" style="background-color: #000;">
+                    <video src="{{ post.video.url }}" class="post-video" controls style="width: 100%; max-height: clamp(250px, 50vh, 400px); display: block;"></video>
+                </div>
+            {% elif post.image %}
                 <div class="post-image-container">
                     <img src="{{ post.image.url }}" alt="Post image" class="post-image">
                 </div>
