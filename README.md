@@ -1,74 +1,79 @@
 # CodeAlpha_LinkUp
 
-A relational social media platform developed as part of the CodeAlpha Full Stack Development Internship. LinkUp allows users to create profiles, build a social graph by following others, publish content, and interact dynamically through asynchronous likes and comments.
+CodeAlpha_LinkUp is a Django-based social networking platform built as part of the CodeAlpha Full Stack Development Internship. The app supports user registration, profile management, follower relationships, content publishing, real-time notifications, messaging, and media uploads.
 
-## 🚀 Features
+## Key Features
 
-* **Robust Authentication:** Secure user registration and login handled by Django's built-in auth framework.
-* **Automated Profile Generation:** Utilizes Django `post_save` signals to automatically construct relational user profiles upon account creation.
-* **Relational Social Graph:** Complex Many-to-Many database routing allows users to follow and unfollow each other seamlessly.
-* **Content Engine:** Users can publish posts and engage in discussions via linked comments.
-* **Asynchronous Interactions:** Vanilla JavaScript and the Fetch API are used to process "Likes" and "Follows" in real-time, instantly updating UI metrics without requiring a page reload.
-* **Responsive UI:** Clean, mobile-friendly interface built with HTML5, CSS3, and modern frontend design principles.
+* **Authentication & Registration**
+  * Secure user login and signup using Django's authentication framework.
+  * Profile creation and management for every registered user.
+* **Social Graph**
+  * Follow/unfollow functionality with Many-to-Many relational support.
+  * User directory and discovery pages.
+* **Feed & Content**
+  * Create posts with text, images, and video attachments.
+  * Like and comment on posts.
+* **Real-Time Interactions**
+  * Asynchronous likes, follows, and notifications using JavaScript and WebSockets.
+  * Chat support for instant messages between users.
+* **Notifications**
+  * Event-driven notifications for new followers, likes, comments, and messages.
+* **Responsive Frontend**
+  * Mobile-friendly UI built with HTML5, CSS3, and vanilla JavaScript.
 
-## 🛠️ Tech Stack
+## Tech Stack
 
-* **Backend:** Python, Django
-* **Database:** SQLite (Configured for rapid development, easily portable to PostgreSQL)
+* **Backend:** Python 3, Django
+* **Database:** SQLite (development-ready, easily swapped to PostgreSQL)
 * **Frontend:** HTML5, CSS3, Vanilla JavaScript
+* **Real-time:** Django Channels / WebSockets
 
-## 📂 Project Structure
+## Project Structure
 
 ```text
 CodeAlpha_LinkUp/
-├── social_project/       # Core project settings and configuration
-├── profiles/             # App managing user bios, avatars, and the follower graph
-├── feed/                 # App managing posts, comments, and the like system
+├── chat/                 # Realtime chat and conversation features
+├── feed/                 # Posts, comments, media, and feed views
+├── notifications/        # Notification delivery and event handling
+├── profiles/             # User profiles, avatars, and follow relationships
+├── social_project/       # Django project settings, routing, and ASGI/WGI setup
+├── static/               # CSS and JavaScript assets
+├── templates/            # Shared and app-specific HTML templates
 ├── manage.py             # Django command-line utility
-└── README.md
+└── README.md             # Project documentation
+```
 
-## ⚙️ Local Setup & Installation
+## Local Setup
 
-To run this project locally, ensure you have Python installed, then follow these steps:
+Make sure Python 3 is installed, then run the following commands from the project root.
 
-**1. Clone the repository**
-`bash
-git clone https://github.com/your-username/CodeAlpha_LinkUp.git
-cd CodeAlpha_LinkUp
-`
-
-**2. Create and activate a virtual environment**
-`bash
-# Windows
+```bash
+# Create a virtual environment
 python -m venv venv
+
+# Activate the virtual environment (Windows)
 venv\Scripts\activate
 
-# macOS/Linux
-python3 -m venv venv
-source venv/bin/activate
-`
-
-**3. Install dependencies**
-`bash
+# Install Django and required packages
 pip install django
-`
 
-**4. Apply database migrations**
-`bash
+# Create and apply database migrations
 python manage.py makemigrations
 python manage.py migrate
-`
 
-**5. Create a superuser (Admin access)**
-`bash
+# Create an admin user
 python manage.py createsuperuser
-`
 
-**6. Spin up the development server**
-`bash
+# Start the development server
 python manage.py runserver
-`
+```
 
-Once the server is running, navigate to `http://127.0.0.1:8000/` in your browser to view the platform. You can access the master dashboard at `http://127.0.0.1:8000/admin/`.
+Open a browser and visit `http://127.0.0.1:8000/` to explore the app. The admin interface is available at `http://127.0.0.1:8000/admin/`.
+
+## Notes
+
+* The project uses SQLite by default for development.
+* For production, switch to PostgreSQL or another supported database and update `social_project/settings.py` accordingly.
+* If additional dependencies are added, install them in the active virtual environment.
 
 
